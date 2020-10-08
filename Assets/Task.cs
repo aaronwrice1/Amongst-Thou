@@ -12,6 +12,8 @@ public class Task : Interactable
     [Tooltip("Root GameObject of the Task used to interact with Task")]
     public GameObject menuRoot;
 
+    public GameObject minimapView;
+
     PlayerInputHandler m_PlayerInputsHandler;
 
     public Task(int id, bool isComplete) {
@@ -36,7 +38,7 @@ public class Task : Interactable
 
     // Update is called once per frame
     void Update() {
-        
+
     }
 
     public void setTaskComplete(int id) {
@@ -56,16 +58,11 @@ public class Task : Interactable
         {
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
-            // Time.timeScale = 0f;
-
-            // EventSystem.current.SetSelectedGameObject(null);
         }
         else
         {
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
-            // Time.timeScale = 1f;
-            // AudioUtility.SetMasterVolume(1);
         }
 
     }

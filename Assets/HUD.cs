@@ -12,11 +12,15 @@ public class HUD : MonoBehaviour {
     public Text taskText;
     public List<Task> taskList = new List<Task>();
 
-    // Start is called before the first frame update
-    void Start() {
+    void Awake() {
         // give player random tasks
         taskList.Add(new Task(1, false, "Take out trash yo"));
         taskList.Add(new Task(2, false, "Do other thingy"));
+    }
+
+    // Start is called before the first frame update
+    void Start() {
+
     }
 
     // Update is called once per frame

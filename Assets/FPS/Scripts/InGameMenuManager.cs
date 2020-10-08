@@ -25,12 +25,12 @@ public class InGameMenuManager : MonoBehaviour
         }
 
         if (Input.GetButtonDown(GameConstants.k_ButtonNamePauseMenu)
-            || (menuRoot.activeSelf && Input.GetButtonDown(GameConstants.k_ButtonNameCancel)))
-        {
-
-            Debug.Log("Setting activeSelf menu");
+            || (menuRoot.activeSelf && Input.GetButtonDown(GameConstants.k_ButtonNameCancel))) {
             SetPauseMenuActivation(!menuRoot.activeSelf);
+        }
 
+        if (menuRoot.activeSelf) {
+            // draw sqaure over player?
         }
     }
 
@@ -43,12 +43,7 @@ public class InGameMenuManager : MonoBehaviour
     {
         menuRoot.SetActive(active);
 
-        if (menuRoot.activeSelf)
-        {
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
-        }
-        else
+        if (!menuRoot.activeSelf)
         {
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;

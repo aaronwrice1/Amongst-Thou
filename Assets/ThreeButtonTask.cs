@@ -17,10 +17,35 @@ public class ThreeButtonTask : Task {
 
     void Start() {
         menuRoot.SetActive(false);
+
+        Debug.LogError("start for id: " + id);
+
+        // if the task is in the players tasklist, display minimap icon for task
+        HUD hud = GameObject.Find("HUD").GetComponent<HUD>();
+        foreach (Task t in hud.taskList) {
+            Debug.LogError("t.id: " + t.id);
+            if (t.id == id) {
+                Debug.LogError("activated minimap for: " + id);
+                minimapView.SetActive(true);
+            }
+        }
     }
 
-    private void Update() {
-        
+    void Update() {
+        // have the task highlight itself if it's not done
+        HUD hud = GameObject.Find("HUD").GetComponent<HUD>();
+        foreach (Task t in hud.taskList) {
+            if (t.id == id) {
+                if (!t.isComplete) {
+                    GetComponent<Renderer>().material.color = Color.yellow;
+                } else {
+                    GetComponent<Renderer>().material.color = Color.red;
+                    Debug.LogError("set false for: " + id);
+                    minimapView.SetActive(false);
+                }
+                break;
+            }
+        }
     }
 
     public void setButton1On() {
