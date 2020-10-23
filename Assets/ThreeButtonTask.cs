@@ -16,36 +16,47 @@ public class ThreeButtonTask : Task {
     }
 
     void Start() {
-        menuRoot.SetActive(false);
 
-        Debug.LogError("start for id: " + id);
-
-        // if the task is in the players tasklist, display minimap icon for task
-        HUD hud = GameObject.Find("HUD").GetComponent<HUD>();
-        foreach (Task t in hud.taskList) {
-            Debug.LogError("t.id: " + t.id);
-            if (t.id == id) {
-                Debug.LogError("activated minimap for: " + id);
-                minimapView.SetActive(true);
-            }
-        }
     }
 
     void Update() {
-        // have the task highlight itself if it's not done
-        HUD hud = GameObject.Find("HUD").GetComponent<HUD>();
-        foreach (Task t in hud.taskList) {
-            if (t.id == id) {
-                if (!t.isComplete) {
-                    GetComponent<Renderer>().material.color = Color.yellow;
-                } else {
-                    GetComponent<Renderer>().material.color = Color.red;
-                    Debug.LogError("set false for: " + id);
-                    minimapView.SetActive(false);
-                }
-                break;
+
+    }
+
+    override public void Interact() {
+        Debug.LogError("calling interact!!");
+
+        // only allow interaction if user has task
+        if (GetComponent<Renderer>().material.color != Color.yellow) {
+            return;
+        }
+        
+        // display ui for task
+        display = Instantiate(menuRoot, new Vector3(0,0,0), Quaternion.identity);
+
+        // setup buttons to call functions
+        Button[] buttons = display.GetComponentsInChildren<Button>();
+        foreach (Button b in buttons) {
+            switch (b.name) {
+                case "Button1":
+                    b.onClick.AddListener(delegate { setButton1On(); });
+                    break;
+                case "Button2":
+                    b.onClick.AddListener(delegate { setButton2On(); });
+                    break;
+                case "Button3":
+                    b.onClick.AddListener(delegate { setButton3On(); });
+                    break;
+                case "CloseButton":
+                    b.onClick.AddListener(delegate { CloseTask(); });
+                    break;
+                default:
+                    Debug.LogError("No case to handle button called: " + b.name);
+                    break;
             }
         }
+
+        showCursor();
     }
 
     public void setButton1On() {
@@ -66,16 +77,10 @@ public class ThreeButtonTask : Task {
     private void checkIfTaskIsComplete() {
         if (button1Pressed && button2Pressed && button3Pressed) {
             // task completed!
-            Debug.LogError("Task Completed!");
-            Debug.LogError("things id: " + id);
             setTaskComplete(id);
+
             CloseTask();
         }
     }
 
-    override public void resetTask() {
-        button1Pressed = false;
-        button2Pressed = false;
-        button3Pressed = false;
-    }
 }

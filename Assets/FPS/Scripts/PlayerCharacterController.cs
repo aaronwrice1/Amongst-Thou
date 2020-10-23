@@ -1,9 +1,10 @@
 ﻿using UnityEngine;
 using UnityEngine.Events;
 using System.Collections.Generic;
+using UnityEngine.Networking;
 
 [RequireComponent(typeof(CharacterController), typeof(PlayerInputHandler), typeof(AudioSource))]
-public class PlayerCharacterController : MonoBehaviour
+public class PlayerCharacterController : NetworkBehaviour
 {
     [Header("References")]
     [Tooltip("Reference to the main camera used for the player")]
@@ -119,19 +120,24 @@ public class PlayerCharacterController : MonoBehaviour
     const float k_JumpGroundingPreventionTime = 0.2f;
     const float k_GroundCheckDistanceInAir = 0.07f;
 
-    public HUD hud;
+    void Start() {
 
-    void Start()
-    {
+        Debug.LogError("Localplayer: " + isLocalPlayer);
+
+        if(isLocalPlayer) {
+            Debug.LogError("set camera to true");
+            playerCamera.enabled = true;
+        } else {
+            Debug.LogError("set camera to false");
+            playerCamera.enabled = false;
+        }
+
         // fetch components on the same gameObject
         m_Controller = GetComponent<CharacterController>();
         DebugUtility.HandleErrorIfNullGetComponent<CharacterController, PlayerCharacterController>(m_Controller, this, gameObject);
 
         m_InputHandler = GetComponent<PlayerInputHandler>();
         DebugUtility.HandleErrorIfNullGetComponent<PlayerInputHandler, PlayerCharacterController>(m_InputHandler, this, gameObject);
-
-        // m_WeaponsManager = GetComponent<PlayerWeaponsManager>();
-        // DebugUtility.HandleErrorIfNullGetComponent<PlayerWeaponsManager, PlayerCharacterController>(m_WeaponsManager, this, gameObject);
 
         m_Health = GetComponent<Health>();
         DebugUtility.HandleErrorIfNullGetComponent<Health, PlayerCharacterController>(m_Health, this, gameObject);
@@ -146,11 +152,15 @@ public class PlayerCharacterController : MonoBehaviour
         // force the crouch state to false when starting
         SetCrouchingState(false, true);
         UpdateCharacterHeight(true);
-
-        
     }
 
     void Update() {
+        if (!isLocalPlayer)
+        {
+            // exit from update if this is not the local player
+            return;
+        }
+
         // check for Y kill
         if(!isDead && transform.position.y < killHeight)
         {
@@ -173,39 +183,27 @@ public class PlayerCharacterController : MonoBehaviour
 
         // initial interaction with object
         if (m_InputHandler.GetInteractInputDown()) {
-            Debug.LogError("e pressed!");
-
             Collider[] objectsInBounds = Physics.OverlapSphere(transform.position, 3f);
             foreach(Collider gameObject in objectsInBounds) {
-                
-                Task task = gameObject.GetComponent<Task>();
-                DeadBody deadBody = gameObject.GetComponent<DeadBody>();
                 Interactable interactable = gameObject.GetComponent<Interactable>();
 
-                // if interacted with a task
-                if (task != null) {
-                    // check if player has that task
-                    foreach (Task t in hud.taskList) {
-                        if (t.id == task.id && !t.isComplete) {
-                            task.Interact();
-                        }
-                    }
-                } else if (deadBody != null) {
-                    Debug.LogError("Here");
-                    deadBody.Interact();
-                } else if (interactable != null) {  // if interacted with something else
+                // need to be called from plyaer since it's the only one to have athourity to send commands
+                if (gameObject.name == "Emergency Button") {
+                    Voting v = GetComponent<Voting>();
+                    v.CmdDisplayVotingScreen();
+                }
+
+                if (interactable != null) {
+                    Debug.LogError("task pressed");
                     interactable.Interact();
                 }
             }  
         }
+
     }
 
-    void OnDie()
-    {
+    void OnDie() {
         isDead = true;
-
-        // Tell the weapons manager to switch to a non-existing weapon in order to lower the weapon
-        // m_WeaponsManager.SwitchToWeaponIndex(-1, true);
     }
 
     void GroundCheck()

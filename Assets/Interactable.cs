@@ -1,8 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
-public class Interactable : MonoBehaviour
+public class Interactable : NetworkBehaviour
 {
     public float radius = 3f;
 

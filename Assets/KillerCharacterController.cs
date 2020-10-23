@@ -1,9 +1,10 @@
 ﻿using UnityEngine;
 using UnityEngine.Events;
 using System.Collections.Generic;
+using UnityEngine.Networking;
 
 [RequireComponent(typeof(CharacterController), typeof(PlayerInputHandler), typeof(AudioSource))]
-public class KillerCharacterController : MonoBehaviour
+public class KillerCharacterController : NetworkBehaviour
 {
     [Header("References")]
     [Tooltip("Reference to the main camera used for the player")]
@@ -119,11 +120,21 @@ public class KillerCharacterController : MonoBehaviour
     const float k_JumpGroundingPreventionTime = 0.2f;
     const float k_GroundCheckDistanceInAir = 0.07f;
 
-    public HUD hud;
     public GameObject deadbody;
 
     void Start()
     {
+
+        Debug.LogError("Localplayer: " + isLocalPlayer);
+
+        if(isLocalPlayer) {
+            Debug.LogError("set camera to true");
+            playerCamera.enabled = true;
+        } else {
+            Debug.LogError("set camera to false");
+            playerCamera.enabled = false;
+        }
+
         // fetch components on the same gameObject
         m_Controller = GetComponent<CharacterController>();
         DebugUtility.HandleErrorIfNullGetComponent<CharacterController, PlayerCharacterController>(m_Controller, this, gameObject);
@@ -152,6 +163,12 @@ public class KillerCharacterController : MonoBehaviour
     }
 
     void Update() {
+        if (!isLocalPlayer)
+        {
+            // exit from update if this is not the local player
+            return;
+        }
+
         // check for Y kill
         if(!isDead && transform.position.y < killHeight)
         {

@@ -14,7 +14,7 @@ public class Task : Interactable
 
     public GameObject minimapView;
 
-    PlayerInputHandler m_PlayerInputsHandler;
+    public GameObject display;
 
     public Task(int id, bool isComplete) {
         this.id = id;
@@ -28,12 +28,8 @@ public class Task : Interactable
     }
 
     // Start is called before the first frame update
-    void Start()
-    {
-        m_PlayerInputsHandler = FindObjectOfType<PlayerInputHandler>();
-        DebugUtility.HandleErrorIfNullFindObject<PlayerInputHandler, ThreeButtonTask>(m_PlayerInputsHandler, this);
-
-        menuRoot.SetActive(false);
+    void Start() {
+        
     }
 
     // Update is called once per frame
@@ -42,38 +38,30 @@ public class Task : Interactable
     }
 
     public void setTaskComplete(int id) {
-        HUD hud = GameObject.Find("HUD").GetComponent<HUD>();
+
+        GetComponent<Renderer>().material.color = Color.red;
+        minimapView.SetActive(false);
+
+        HUD hud = GameObject.Find("TaskList").GetComponent<HUD>();
         hud.completeTask(id);
-    }
-
-    override public void Interact() {
-        Debug.LogError("Interacting with: " + id);
-        SetDisplayMenu(!menuRoot.activeSelf);
-    }
-
-    void SetDisplayMenu(bool active) {
-        menuRoot.SetActive(active);
-
-        if (menuRoot.activeSelf)
-        {
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
-        }
-        else
-        {
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
-        }
-
     }
 
     public virtual void resetTask() {
         // implemented in subclasses
     }
 
-    public void CloseTask()
-    {
-        resetTask();
-        SetDisplayMenu(false);
+    public void showCursor() {
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+    }
+
+    public void hideCursor() {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+    }
+    
+    public void CloseTask() {
+        hideCursor();
+        Destroy(display);
     }
 }
